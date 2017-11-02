@@ -85,7 +85,6 @@ def gen_timestamp_image(width, height, font, timestamp,
 
     # Save the file.
     img.save(file_name)
-    sys.exit(0)
     
 
 def main():
