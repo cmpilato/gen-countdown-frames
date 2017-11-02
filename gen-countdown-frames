@@ -92,22 +92,12 @@ def main():
     opts, args = getopt.getopt(sys.argv[1:], "h",
                                [ "help", "width=", "height=", "font-file=",
                                  "font-size=", "position=" ])
-    if len(args) != 1:
-        usage_and_exit("Not enough arguments")
 
     width = 1280
     height = 720
     font_file = 'arial.ttf'
     font_size = None
     position = 'c'
-    
-    # Only non-optional argument is the number of minutes.
-    try:
-        num_minutes = int(args[0])
-        if num_minutes > 60:
-            usage_and_exit("Maximum number of minutes is 60")
-    except:
-        usage_and_exit("Invalid value for number of minutes")
     
     # Parse options.
     for option, value in opts:
@@ -136,6 +126,17 @@ def main():
             position = value
         else:
             usage_and_exit("Unexpected option '%s'" % option)
+
+    # Only non-optional argument is the number of minutes.
+    if len(args) != 1:
+        usage_and_exit("Not enough arguments")
+    try:
+        num_minutes = int(args[0])
+        if num_minutes > 60:
+            usage_and_exit("Maximum number of minutes is 60")
+    except:
+        usage_and_exit("Invalid value for number of minutes")
+    
 
     if font_size is None:
         font_size = int(width / 10)
