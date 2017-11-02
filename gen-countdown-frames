@@ -1,0 +1,161 @@
+#!/usr/bin/env python
+"""Generate PNG images for each second of a countdown clock beginning just
+under a given number of minutes and counting down to 0:00.
+
+Usage:  __FILE__ [OPTIONS] NUM_MINUTES
+  
+Options:
+    -h, --help      Display this help message
+    --width=        Width (in pixels) of the generated images [1280]
+    --height=       Height (in pixels) of the generated images [720]
+    --font-file=    TrueType font file to use for countdown text [arial.ttf]
+    --font-size=    Font size (in pixels) of countdown text [width / 10]
+    --position=     Location of text (with proportional padding) [c]:
+                       tl (top-left), t (top-centered), tr (top-right),
+                       l (middle-left), c (middle-centered), r (middle-right),
+                       bl (bottom-left), b (bottom-centered), br (bottom-right)
+
+Example(s):
+    # 5-minute countdown 640x480 with centered Arial 24-point font
+    gen-countdown-images.py --width 640 --height 480 --font-size 24 5
+
+    # 1-minute countdown 1280x720 with Century Gothic 120-point font
+    # positioned in the bottom-right corner
+    gen-countdown-images.py --font-file GOTHIC.TTF --position br 1
+   
+"""
+import sys
+import getopt
+from PIL import Image, ImageFont, ImageDraw
+
+
+def usage_and_exit(msg=None):
+    exit_code = 0
+    stream = sys.stdout
+    if msg:
+        stream = sys.stderr
+        stream.write("ERROR: %s\n\n" % msg)
+        exit_code = 1
+    stream.write(__doc__.replace('__FILE__', sys.argv[0]))
+    raise SystemExit, exit_code
+
+
+def gen_timestamp_image(width, height, font, timestamp,
+                        position, file_name):
+    # New image
+    img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+
+    # New drawing canvas
+    draw = ImageDraw.Draw(img)
+
+    # Calculate the size required by the timestamp text.
+    text_width, text_height = draw.textsize(timestamp, font)
+    
+    # Calculate the position of the text.  For a border on
+    # edge-snapped positions, we'll use 5% of the smaller dimension.
+    #
+    # FIXME: Probably should do some bounds-checking here, handling
+    #        rendered text that's too big to fit the image.
+    border = min(width, height) * 0.05
+    if position in ['tl', 'l', 'bl']:
+        # horizonally left-snapped        
+        text_x = border
+    elif position in ['tr', 'r', 'br']:
+        # horizonally right-snapped        
+        text_x = width - text_width - border
+    else:
+        # horizontally centered
+        text_x = (width - text_width) / 2
+    if position in ['tl', 't', 'tr']:
+        # vertically top-snapped
+        text_y = border
+    elif position in ['bl', 'b', 'br']:
+        # vertically bottom-snapped
+        text_y = height - text_height - border
+    else:
+        # vertically centered
+        text_y = (height - text_height) / 2
+
+    # At least have the text begin in the frame...
+    text_x = max(0, text_x)
+    text_y = max(0, text_y)
+    
+    # Draw the text.
+    draw.text((text_x, text_y), timestamp, (255, 255, 255), font)
+
+    # Save the file.
+    img.save(file_name)
+    sys.exit(0)
+    
+
+def main():
+    opts, args = getopt.getopt(sys.argv[1:], "h",
+                               [ "help", "width=", "height=", "font-file=",
+                                 "font-size=", "position=" ])
+    if len(args) != 1:
+        usage_and_exit("Not enough arguments")
+
+    width = 1280
+    height = 720
+    font_file = 'arial.ttf'
+    font_size = None
+    position = 'c'
+    
+    # Only non-optional argument is the number of minutes.
+    try:
+        num_minutes = int(args[0])
+        if num_minutes > 60:
+            usage_and_exit("Maximum number of minutes is 60")
+    except:
+        usage_and_exit("Invalid value for number of minutes")
+    
+    # Parse options.
+    for option, value in opts:
+        if option in ["-h", "--help"]:
+            usage_and_exit()
+        elif option in ["--height"]:
+            try:
+                height = int(value)
+            except e:
+                usage_and_exit("Invalid value for --height")
+        elif option in ["--width"]:
+            try:
+                width = int(value)
+            except e:
+                usage_and_exit("Invalid value for --width")
+        elif option in ["--font-size"]:
+            try:
+                font_size = int(value)
+            except e:
+                usage_and_exit("Invalid value for --font-size")
+        elif option in ["--font-file"]:
+            font_file = value
+        elif option in ["--position"]:
+            if value not in ["tl", "t", "tr", "l", "c", "r", "bl", "b", "br"]:
+                usage_and_exit("Invalid value for --position")
+            position = value
+        else:
+            usage_and_exit("Unexpected option '%s'" % option)
+
+    if font_size is None:
+        font_size = int(width / 10)
+
+    try:
+        font = ImageFont.truetype(font_file, font_size)
+    except:
+        usage_and_exit("Unable to load font file '%s' and size %d"
+                       % (font_file, font_size))
+
+    format = '%d:%02d'
+    if num_minutes >= 10:
+        format = '%02d:%02d'
+    for minute in range(num_minutes - 1, -1, -1):
+        for second in range(59, -1, -1):
+            timestamp = format % (minute, second)
+            filename = timestamp.replace(':', '_') + '.png'
+            gen_timestamp_image(width, height, font, timestamp,
+                                position, filename)
+
+
+if __name__ == "__main__":
+    main()
