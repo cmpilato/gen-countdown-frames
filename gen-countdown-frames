@@ -108,17 +108,17 @@ def main():
         elif option in ["--height"]:
             try:
                 height = int(value)
-            except e:
+            except:
                 usage_and_exit("Invalid value for --height")
         elif option in ["--width"]:
             try:
                 width = int(value)
-            except e:
+            except:
                 usage_and_exit("Invalid value for --width")
         elif option in ["--font-size"]:
             try:
                 font_size = int(value)
-            except e:
+            except:
                 usage_and_exit("Invalid value for --font-size")
         elif option in ["--font-file"]:
             font_file = value
