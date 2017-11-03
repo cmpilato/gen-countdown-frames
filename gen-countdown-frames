@@ -10,6 +10,7 @@ Options:
     --height=       Height (in pixels) of the generated images [720]
     --font-file=    TrueType font file to use for countdown text [arial.ttf]
     --font-size=    Font size (in pixels) of countdown text [width / 10]
+    --font-color=   Color (as an RGB hex triplet) of countdown text [FFFFFF]
     --position=     Location of text (with proportional padding) [c]:
                        tl (top-left), t (top-centered), tr (top-right),
                        l (middle-left), c (middle-centered), r (middle-right),
@@ -26,6 +27,7 @@ Example(s):
 """
 import sys
 import getopt
+import re
 from PIL import Image, ImageFont, ImageDraw
 
 
@@ -40,7 +42,7 @@ def usage_and_exit(msg=None):
     raise SystemExit, exit_code
 
 
-def gen_timestamp_image(width, height, font, timestamp,
+def gen_timestamp_image(width, height, font, font_color, timestamp,
                         position, file_name):
     # New image
     img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
@@ -81,7 +83,7 @@ def gen_timestamp_image(width, height, font, timestamp,
     text_y = max(0, text_y)
     
     # Draw the text.
-    draw.text((text_x, text_y), timestamp, (255, 255, 255), font)
+    draw.text((text_x, text_y), timestamp, font_color, font)
 
     # Save the file.
     img.save(file_name)
@@ -90,12 +92,13 @@ def gen_timestamp_image(width, height, font, timestamp,
 def main():
     opts, args = getopt.getopt(sys.argv[1:], "h",
                                [ "help", "width=", "height=", "font-file=",
-                                 "font-size=", "position=" ])
+                                 "font-size=", "font-color=", "position=" ])
 
     width = 1280
     height = 720
     font_file = 'arial.ttf'
     font_size = None
+    font_color = (255, 255, 255)
     position = 'c'
     
     # Parse options.
@@ -119,6 +122,13 @@ def main():
                 usage_and_exit("Invalid value for --font-size")
         elif option in ["--font-file"]:
             font_file = value
+        elif option in ["--font-color"]:
+            regexp = '^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$'
+            match = re.match(regexp, value)
+            if match:
+                font_color = tuple(map(lambda x: int(x, 16), match.groups()))
+            else:
+                usage_and_exit("Invalid value for --font-color")
         elif option in ["--position"]:
             if value not in ["tl", "t", "tr", "l", "c", "r", "bl", "b", "br"]:
                 usage_and_exit("Invalid value for --position")
@@ -153,7 +163,7 @@ def main():
         for second in range(59, -1, -1):
             timestamp = format % (minute, second)
             filename = timestamp.replace(':', '_') + '.png'
-            gen_timestamp_image(width, height, font, timestamp,
+            gen_timestamp_image(width, height, font, font_color, timestamp,
                                 position, filename)
 
 
