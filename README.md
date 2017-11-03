@@ -14,6 +14,22 @@ Run `gen-countdown-frames` as you would any other Python script on your system. 
 
 `$ gen-countdown-frame [OPTIONS] NUM_MINUTES`
 
+The result of a successful invocation of the script is a collection of PNG image files in the current working directory whose names derive from the time displayed in the image:
+
+    $ gen-countdown-frame --verbose 1
+    Create file 'countdown-0_59.png' ... done.
+    Create file 'countdown-0_58.png' ... done.
+    Create file 'countdown-0_57.png' ... done.
+    ...
+    Create file 'countdown-0_02.png' ... done.
+    Create file 'countdown-0_01.png' ... done.
+    Create file 'countdown-0_00.png' ... done.
+    $ ls -1
+    countdown-0_00.png
+    countdown-0_01.png
+    countdown-0_02.png
+    ...
+
 ## Options
 * **-h, --help** - Display the usage message
 * **--width=PX** - Generate image frames whose width is _PX_ pixels [_default: 1280_]
@@ -32,9 +48,9 @@ Run `gen-countdown-frames` as you would any other Python script on your system. 
     * `bl`: bottom-left
     * `b`: bottom-center
     * `br`: bottom-right
+* **-v, --verbose** - Show verbose output
 
 ## Examples
-
 1280x720 images for 5 minutes of countdown, using white 128pt Arial, positioned in the center of the frame:
 
 `$ gen-countdown-frames 5`
