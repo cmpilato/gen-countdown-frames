@@ -21,6 +21,7 @@ Run `gen-countdown-frames` as you would any other Python script on your system. 
 * **--font-file=FILENAME** - TrueType font file to use for countdown text [_default: arial.ttf_]
 * **--font-size=PX** - Font size (in pixels) of countdown text [_default: 10% of the image width_]
 * **--font-color=HEX** - Font color (as an RGB hex triplet) of countdown text [_default: FFFFFF_]
+* **--font-opacity=INT** - Font opacity (as an integer percentage) of countdown text [_default: 100_]
 * **--position=LOC** - Rough location of text (with padding) [_default: c_]:
     * `tl`: top-left
     * `t`: top-center

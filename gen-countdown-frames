@@ -11,6 +11,7 @@ Options:
     --font-file=    TrueType font file to use for countdown text [arial.ttf]
     --font-size=    Font size (in pixels) of countdown text [width / 10]
     --font-color=   Color (as an RGB hex triplet) of countdown text [FFFFFF]
+    --font-opacity= Opactity (as a percentage) of countdown text [100]
     --position=     Location of text (with proportional padding) [c]:
                        tl (top-left), t (top-centered), tr (top-right),
                        l (middle-left), c (middle-centered), r (middle-right),
@@ -28,6 +29,7 @@ Example(s):
 import sys
 import getopt
 import re
+import math
 from PIL import Image, ImageFont, ImageDraw
 
 
@@ -91,14 +93,15 @@ def gen_timestamp_image(width, height, font, font_color, timestamp,
 
 def main():
     opts, args = getopt.getopt(sys.argv[1:], "h",
-                               [ "help", "width=", "height=", "font-file=",
-                                 "font-size=", "font-color=", "position=" ])
+                               ["help", "width=", "height=", "font-file=",
+                                "font-size=", "font-color=", "font-opacity=",
+                                "position="])
 
     width = 1280
     height = 720
     font_file = 'arial.ttf'
     font_size = None
-    font_color = (255, 255, 255)
+    font_color = [255, 255, 255, 255]
     position = 'c'
     
     # Parse options.
@@ -126,9 +129,20 @@ def main():
             regexp = '^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$'
             match = re.match(regexp, value)
             if match:
-                font_color = tuple(map(lambda x: int(x, 16), match.groups()))
+                font_color[0] = int(match.group(1), 16)
+                font_color[1] = int(match.group(2), 16)
+                font_color[2] = int(match.group(3), 16)
             else:
                 usage_and_exit("Invalid value for --font-color")
+        elif option in ["--font-opacity"]:
+            try:
+                opacity = int(value)
+                if (opacity < 1) or (opacity > 100):
+                    raise ValueError()
+                font_color[3] = int(math.ceil(opacity * 255.0 / 100.0))
+            except:
+                usage_and_exit("Invalid value for --font-opacity")
+            
         elif option in ["--position"]:
             if value not in ["tl", "t", "tr", "l", "c", "r", "bl", "b", "br"]:
                 usage_and_exit("Invalid value for --position")
@@ -163,8 +177,8 @@ def main():
         for second in range(59, -1, -1):
             timestamp = format % (minute, second)
             filename = timestamp.replace(':', '_') + '.png'
-            gen_timestamp_image(width, height, font, font_color, timestamp,
-                                position, filename)
+            gen_timestamp_image(width, height, font, tuple(font_color),
+                                timestamp, position, filename)
 
 
 if __name__ == "__main__":
