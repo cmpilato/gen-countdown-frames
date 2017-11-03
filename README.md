@@ -7,6 +7,8 @@ Python script for generating still image frames useful for creating a countdown 
 * Python - the script is written in this language
 * Pillow - the Python imaging library
 
+_### TODO: Determine supported/required versions of these things_
+
 # Usage
 Run `gen-countdown-frames` as you would any other Python script on your system.  The command-line looks like this:
 
