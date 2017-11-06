@@ -2,7 +2,8 @@
 """Generate PNG images for each second of a countdown clock beginning just
 under a given number of minutes and counting down to 0:00.  Files will be
 created in the current working directory with names that derive from the
-time values they contain (for example, "countdown-4_57.png").
+time values they contain and contain a sort-friendly initial numeric
+index ("002-countdown-4_57.png", "290-countdown-0_09.png", etc.).
 
 Usage:  __FILE__ [OPTIONS] NUM_MINUTES
   
@@ -179,16 +180,20 @@ def main():
     format = '%d:%02d'
     if num_minutes >= 10:
         format = '%02d:%02d'
+    num_images = num_minutes * 60
+    filename_fmt = '%%0%dd-countdown-%%s.png' % (len(str(num_images)))
+    index = 0
     for minute in range(num_minutes - 1, -1, -1):
         for second in range(59, -1, -1):
             timestamp = format % (minute, second)
-            filename = 'countdown-' + timestamp.replace(':', '_') + '.png'
+            filename = filename_fmt % (index, timestamp.replace(':', '_'))
             if verbose:
                 sys.stdout.write("Create file '%s' ... " % (filename))
             gen_timestamp_image(width, height, font, tuple(font_color),
                                 timestamp, position, filename)
             if verbose:
                 sys.stdout.write("done.\n")
+            index += 1
     if verbose:
         sys.stdout.write("Finished!\n")
 
