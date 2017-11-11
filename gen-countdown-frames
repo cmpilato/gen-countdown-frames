@@ -19,6 +19,7 @@ Options:
                         tl (top-left), t (top-centered), tr (top-right),
                         l (middle-left), c (middle-centered), r (middle-right),
                         bl (bottom-left), b (bottom-centered), br (bottom-right)
+   --no-zeroes       Omit leading zeroes in minutes remaining
    -v, --verbose     Be noisy about what we're doing
 
 Example(s):
@@ -99,7 +100,7 @@ def main():
     opts, args = getopt.getopt(sys.argv[1:], "hv",
                                ["help", "width=", "height=", "font-file=",
                                 "font-size=", "font-color=", "font-opacity=",
-                                "position=", "verbose"])
+                                "no-zeroes", "position=", "verbose"])
 
     width = 1280
     height = 720
@@ -107,6 +108,7 @@ def main():
     font_size = None
     font_color = [255, 255, 255, 255]
     position = 'c'
+    zeroes = True
     verbose = False
     
     # Parse options.
@@ -147,7 +149,8 @@ def main():
                 font_color[3] = int(math.ceil(opacity * 255.0 / 100.0))
             except:
                 usage_and_exit("Invalid value for --font-opacity")
-            
+        elif option in ["--no-zeroes"]:
+            zeroes = False
         elif option in ["--position"]:
             if value not in ["tl", "t", "tr", "l", "c", "r", "bl", "b", "br"]:
                 usage_and_exit("Invalid value for --position")
@@ -178,7 +181,7 @@ def main():
                        % (font_file, font_size))
 
     format = '%d:%02d'
-    if num_minutes >= 10:
+    if num_minutes >= 10 and zeroes:
         format = '%02d:%02d'
     num_images = num_minutes * 60
     filename_fmt = '%%0%dd-countdown-%%s.png' % (len(str(num_images)))
