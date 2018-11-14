@@ -13,13 +13,13 @@ Options:
    --height=         Height (in pixels) of the generated images [720]
    --font-file=      TrueType font file to use for countdown text [arial.ttf]
    --font-size=      Font size (in pixels) of countdown text [width / 10]
-   --font-color=     Color (as an RGB hex triplet) of countdown text [FFFFFF]
-   --font-opacity=   Opactity (as a percentage) of countdown text [100]
+   --font-color=     Text color (as an RGB or RGBA hex value) [FFFFFFFF]
    --position=       Location of text (with proportional padding) [c]:
                         tl (top-left), t (top-centered), tr (top-right),
                         l (middle-left), c (middle-centered), r (middle-right),
                         bl (bottom-left), b (bottom-centered), br (bottom-right)
    --no-zeroes       Omit leading zeroes in minutes remaining
+   --shadow-color=   Drop shadow color (as an RGB or RGBA hex value, if any)
    -v, --verbose     Be noisy about what we're doing
 
 Example(s):
@@ -49,8 +49,9 @@ def usage_and_exit(msg=None):
     raise SystemExit, exit_code
 
 
-def gen_timestamp_image(width, height, font, font_color, timestamp,
-                        position, file_name):
+def gen_timestamp_image(width, height, font, font_color,
+                        shadow_color, shadow_offset,
+                        timestamp, position, file_name):
     # New image
     img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
@@ -88,7 +89,12 @@ def gen_timestamp_image(width, height, font, font_color, timestamp,
     # At least have the text begin in the frame...
     text_x = max(0, text_x)
     text_y = max(0, text_y)
-    
+
+    # Draw the shadow (if any).
+    if shadow_color is not None:
+        draw.text((text_x + shadow_offset, text_y + shadow_offset),
+                  timestamp, shadow_color, font)
+        
     # Draw the text.
     draw.text((text_x, text_y), timestamp, font_color, font)
 
@@ -96,17 +102,39 @@ def gen_timestamp_image(width, height, font, font_color, timestamp,
     img.save(file_name)
     
 
+def color_hex_to_tuple(color):
+    regexp = '^#?(([0-9a-fA-F]{2}){3,4})$'
+    match = re.match(regexp, color)
+    hex = match.group(1)
+    r = int(hex[0:2], 16)
+    g = int(hex[2:4], 16)
+    b = int(hex[4:6], 16)
+    a = 255
+    if len(hex) > 6:
+        a = int(hex[6:8], 16)
+    return (r, g, b, a)
+
+
 def main():
     opts, args = getopt.getopt(sys.argv[1:], "hv",
-                               ["help", "width=", "height=", "font-file=",
-                                "font-size=", "font-color=", "font-opacity=",
-                                "no-zeroes", "position=", "verbose"])
+                               ["help",
+                                "width=",
+                                "height=",
+                                "font-file=",
+                                "font-size=",
+                                "font-color=",
+                                "no-zeroes",
+                                "position=",
+                                "shadow-color=",
+                                "verbose",
+                                ])
 
     width = 1280
     height = 720
     font_file = 'arial.ttf'
     font_size = None
-    font_color = [255, 255, 255, 255]
+    font_color = (255, 255, 255, 255)
+    shadow_color = None
     position = 'c'
     zeroes = True
     verbose = False
@@ -133,28 +161,21 @@ def main():
         elif option in ["--font-file"]:
             font_file = value
         elif option in ["--font-color"]:
-            regexp = '^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$'
-            match = re.match(regexp, value)
-            if match:
-                font_color[0] = int(match.group(1), 16)
-                font_color[1] = int(match.group(2), 16)
-                font_color[2] = int(match.group(3), 16)
-            else:
-                usage_and_exit("Invalid value for --font-color")
-        elif option in ["--font-opacity"]:
             try:
-                opacity = int(value)
-                if (opacity < 1) or (opacity > 100):
-                    raise ValueError()
-                font_color[3] = int(math.ceil(opacity * 255.0 / 100.0))
+                font_color = color_hex_to_tuple(value)
             except:
-                usage_and_exit("Invalid value for --font-opacity")
+                usage_and_exit("Invalid value for --font-color")
         elif option in ["--no-zeroes"]:
             zeroes = False
         elif option in ["--position"]:
             if value not in ["tl", "t", "tr", "l", "c", "r", "bl", "b", "br"]:
                 usage_and_exit("Invalid value for --position")
             position = value
+        elif option in ["--shadow-color"]:
+            try:
+                shadow_color = color_hex_to_tuple(value)
+            except:
+                usage_and_exit("Invalid value for --shadow-color")
         elif option in ["-v", "--verbose"]:
             verbose = True
         else:
@@ -170,10 +191,14 @@ def main():
     except:
         usage_and_exit("Invalid value for number of minutes")
     
-
+    # If there's no font size, we use text that's 10% of the width.
     if font_size is None:
         font_size = int(width / 10)
 
+    # Calculate the would-be drop shadow offset.
+    shadow_offset = int(font_size * 0.03)
+    
+    # Try to load the font.
     try:
         font = ImageFont.truetype(font_file, font_size)
     except:
@@ -192,7 +217,8 @@ def main():
             filename = filename_fmt % (index, timestamp.replace(':', '_'))
             if verbose:
                 sys.stdout.write("Create file '%s' ... " % (filename))
-            gen_timestamp_image(width, height, font, tuple(font_color),
+            gen_timestamp_image(width, height, font, font_color,
+                                shadow_color, shadow_offset,
                                 timestamp, position, filename)
             if verbose:
                 sys.stdout.write("done.\n")

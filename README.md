@@ -36,8 +36,7 @@ The result of a successful invocation of the script is a collection of PNG image
 * **--height=PX** - Generate image frames whose height is _PX_ pixels [_default: 720_]
 * **--font-file=FILENAME** - TrueType font file to use for countdown text [_default: arial.ttf_]
 * **--font-size=PX** - Font size (in pixels) of countdown text [_default: 10% of the image width_]
-* **--font-color=HEX** - Font color (as an RGB hex triplet) of countdown text [_default: FFFFFF_]
-* **--font-opacity=INT** - Font opacity (as an integer percentage) of countdown text [_default: 100_]
+* **--font-color=HEX** - Text color (as an RGB or RGBA hex value) [_default: FFFFFFFF_]
 * **--no-zeroes** - Omit leading zeroes from single-digit minutes (when NUM_MINUTES is greater than 9)
 * **--position=LOC** - Rough location of text (with padding) [_default: c_]:
     * `tl`: top-left
@@ -49,6 +48,7 @@ The result of a successful invocation of the script is a collection of PNG image
     * `bl`: bottom-left
     * `b`: bottom-center
     * `br`: bottom-right
+* **--shadow-color=HEX** - Drop shadow color (as an RGB or RGBA hex value, if any)
 * **-v, --verbose** - Show verbose output
 
 ## Examples
