@@ -34,7 +34,6 @@ import sys
 import getopt
 import os
 import re
-import math
 from PIL import Image, ImageFont, ImageDraw
 
 
@@ -45,41 +44,54 @@ def usage_and_exit(msg=None):
         stream = sys.stderr
         stream.write("ERROR: %s\n\n" % msg)
         exit_code = 1
-    stream.write(__doc__.replace('__FILE__', os.path.basename(sys.argv[0])))
-    raise SystemExit, exit_code
+    stream.write(__doc__.replace("__FILE__", os.path.basename(sys.argv[0])))
+    raise SystemExit(exit_code)
 
 
-def gen_timestamp_image(width, height, font, font_color,
-                        shadow_color, shadow_offset,
-                        timestamp, position, file_name):
+def gen_timestamp_image(
+    width,
+    height,
+    font,
+    font_color,
+    shadow_color,
+    shadow_offset,
+    timestamp,
+    position,
+    file_name,
+):
     # New image
-    img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+    img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 
     # New drawing canvas
     draw = ImageDraw.Draw(img)
 
     # Calculate the size required by the timestamp text.
     text_width, text_height = draw.textsize(timestamp, font)
-    
+
+    # TODO: draw.textsize() is deprecated, so switch to textbbox().
+    # left, top, right, bottom = draw.textbbox((0, 0), timestamp, font)
+    # text_width = right - left
+    # text_height = bottom - top
+
     # Calculate the position of the text.  For a border on
     # edge-snapped positions, we'll use 5% of the smaller dimension.
     #
     # FIXME: Probably should do some bounds-checking here, handling
     #        rendered text that's too big to fit the image.
     border = min(width, height) * 0.05
-    if position in ['tl', 'l', 'bl']:
-        # horizonally left-snapped        
+    if position in ["tl", "l", "bl"]:
+        # horizonally left-snapped
         text_x = border
-    elif position in ['tr', 'r', 'br']:
-        # horizonally right-snapped        
+    elif position in ["tr", "r", "br"]:
+        # horizonally right-snapped
         text_x = width - text_width - border
     else:
         # horizontally centered
         text_x = (width - text_width) / 2
-    if position in ['tl', 't', 'tr']:
+    if position in ["tl", "t", "tr"]:
         # vertically top-snapped
         text_y = border
-    elif position in ['bl', 'b', 'br']:
+    elif position in ["bl", "b", "br"]:
         # vertically bottom-snapped
         text_y = height - text_height - border
     else:
@@ -92,18 +104,22 @@ def gen_timestamp_image(width, height, font, font_color,
 
     # Draw the shadow (if any).
     if shadow_color is not None:
-        draw.text((text_x + shadow_offset, text_y + shadow_offset),
-                  timestamp, shadow_color, font)
-        
+        draw.text(
+            (text_x + shadow_offset, text_y + shadow_offset),
+            timestamp,
+            shadow_color,
+            font,
+        )
+
     # Draw the text.
     draw.text((text_x, text_y), timestamp, font_color, font)
 
     # Save the file.
     img.save(file_name)
-    
+
 
 def color_hex_to_tuple(color):
-    regexp = '^#?(([0-9a-fA-F]{2}){3,4})$'
+    regexp = r"^#?(([0-9a-fA-F]{2}){3,4})$"
     match = re.match(regexp, color)
     hex = match.group(1)
     r = int(hex[0:2], 16)
@@ -116,29 +132,33 @@ def color_hex_to_tuple(color):
 
 
 def main():
-    opts, args = getopt.getopt(sys.argv[1:], "hv",
-                               ["help",
-                                "width=",
-                                "height=",
-                                "font-file=",
-                                "font-size=",
-                                "font-color=",
-                                "no-zeroes",
-                                "position=",
-                                "shadow-color=",
-                                "verbose",
-                                ])
+    opts, args = getopt.getopt(
+        sys.argv[1:],
+        "hv",
+        [
+            "help",
+            "width=",
+            "height=",
+            "font-file=",
+            "font-size=",
+            "font-color=",
+            "no-zeroes",
+            "position=",
+            "shadow-color=",
+            "verbose",
+        ],
+    )
 
     width = 1280
     height = 720
-    font_file = 'arial.ttf'
+    font_file = "arial.ttf"
     font_size = None
     font_color = (255, 255, 255, 255)
     shadow_color = None
-    position = 'c'
+    position = "c"
     zeroes = True
     verbose = False
-    
+
     # Parse options.
     for option, value in opts:
         if option in ["-h", "--help"]:
@@ -146,24 +166,24 @@ def main():
         elif option in ["--height"]:
             try:
                 height = int(value)
-            except:
+            except Exception:
                 usage_and_exit("Invalid value for --height")
         elif option in ["--width"]:
             try:
                 width = int(value)
-            except:
+            except Exception:
                 usage_and_exit("Invalid value for --width")
         elif option in ["--font-size"]:
             try:
                 font_size = int(value)
-            except:
+            except Exception:
                 usage_and_exit("Invalid value for --font-size")
         elif option in ["--font-file"]:
             font_file = value
         elif option in ["--font-color"]:
             try:
                 font_color = color_hex_to_tuple(value)
-            except:
+            except Exception:
                 usage_and_exit("Invalid value for --font-color")
         elif option in ["--no-zeroes"]:
             zeroes = False
@@ -174,12 +194,12 @@ def main():
         elif option in ["--shadow-color"]:
             try:
                 shadow_color = color_hex_to_tuple(value)
-            except:
+            except Exception:
                 usage_and_exit("Invalid value for --shadow-color")
         elif option in ["-v", "--verbose"]:
             verbose = True
         else:
-            usage_and_exit("Unexpected option '%s'" % option)
+            usage_and_exit(f"Unexpected option '{option}'")
 
     # Only non-optional argument is the number of minutes.
     if len(args) != 1:
@@ -188,38 +208,45 @@ def main():
         num_minutes = int(args[0])
         if num_minutes > 60:
             usage_and_exit("Maximum number of minutes is 60")
-    except:
+    except Exception:
         usage_and_exit("Invalid value for number of minutes")
-    
+
     # If there's no font size, we use text that's 10% of the width.
     if font_size is None:
         font_size = int(width / 10)
 
     # Calculate the would-be drop shadow offset.
     shadow_offset = int(font_size * 0.03)
-    
+
     # Try to load the font.
     try:
         font = ImageFont.truetype(font_file, font_size)
-    except:
-        usage_and_exit("Unable to load font file '%s' and size %d"
-                       % (font_file, font_size))
+    except Exception:
+        usage_and_exit(f"Unable to load font file '{font_file}' and size {font_size}")
 
-    format = '%d:%02d'
+    format = "%d:%02d"
     if num_minutes >= 10 and zeroes:
-        format = '%02d:%02d'
+        format = "%02d:%02d"
     num_images = num_minutes * 60
-    filename_fmt = '%%0%dd-countdown-%%s.png' % (len(str(num_images)))
+    filename_fmt = "%%0%dd-countdown-%%s.png" % (len(str(num_images)))
     index = 0
     for minute in range(num_minutes - 1, -1, -1):
         for second in range(59, -1, -1):
             timestamp = format % (minute, second)
-            filename = filename_fmt % (index, timestamp.replace(':', '_'))
+            filename = filename_fmt % (index, timestamp.replace(":", "_"))
             if verbose:
-                sys.stdout.write("Create file '%s' ... " % (filename))
-            gen_timestamp_image(width, height, font, font_color,
-                                shadow_color, shadow_offset,
-                                timestamp, position, filename)
+                sys.stdout.write(f"Create file '{filename}' ... ")
+            gen_timestamp_image(
+                width,
+                height,
+                font,
+                font_color,
+                shadow_color,
+                shadow_offset,
+                timestamp,
+                position,
+                filename,
+            )
             if verbose:
                 sys.stdout.write("done.\n")
             index += 1
