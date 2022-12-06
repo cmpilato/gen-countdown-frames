@@ -65,13 +65,14 @@ def gen_timestamp_image(
     # New drawing canvas
     draw = ImageDraw.Draw(img)
 
-    # Calculate the size required by the timestamp text.
-    text_width, text_height = draw.textsize(timestamp, font)
-
-    # TODO: draw.textsize() is deprecated, so switch to textbbox().
-    # left, top, right, bottom = draw.textbbox((0, 0), timestamp, font)
-    # text_width = right - left
-    # text_height = bottom - top
+    # Calculate the size required by the timestamp text.  We're going
+    # to use the actual width of the timestamp text, but for the height
+    # we'll normalize on the height needed to represent all the characters
+    # we might use.
+    bbox = draw.textbbox((0, 0), timestamp, font)
+    text_width = bbox[2] - bbox[0]
+    bbox = draw.textbbox((0, 0), "0123456789:", font)
+    text_height = bbox[3] - bbox[1]
 
     # Calculate the position of the text.  For a border on
     # edge-snapped positions, we'll use 5% of the smaller dimension.
