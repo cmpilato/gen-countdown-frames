@@ -6,7 +6,7 @@ time values they contain and contain a sort-friendly initial numeric
 index ("002-countdown-4_57.png", "290-countdown-0_09.png", etc.).
 
 Usage:  __FILE__ [OPTIONS] NUM_MINUTES
-  
+
 Options:
    -h, --help        Display this help message
    --width=          Width (in pixels) of the generated images [1280]
@@ -38,7 +38,7 @@ Example(s):
    gen-countdown-images.py --font-file GOTHIC.TTF --position br 1
 
    # 2-minute countdown with both numeric text and disappearing ring
-   gen-countdown-images.py --enable-ring --ring-height 500 --ring-thickness 40 2  
+   gen-countdown-images.py --enable-ring --ring-height 500 --ring-thickness 40 2
 """
 import sys
 import getopt
@@ -89,7 +89,7 @@ def gen_timestamp_image(
         center_x = width / 2
         center_y = height / 2
         outer_radius = ring_height / 2
-        
+
         outer_bbox = [
             center_x - outer_radius,
             center_y - outer_radius,
@@ -110,7 +110,7 @@ def gen_timestamp_image(
         arc_degrees = 360 * arc_fraction
         start_angle = 270  # Start at top (12 o'clock position)
         end_angle = start_angle + arc_degrees
-        
+
         # Draw shadow ring if shadow is enabled.
         if shadow_color is not None:
             shadow_outer_bbox = [
@@ -128,10 +128,10 @@ def gen_timestamp_image(
             draw.pieslice(shadow_outer_bbox, start_angle, end_angle, fill=shadow_color)
             if inner_radius > 0:
                 draw.pieslice(shadow_inner_bbox, start_angle, end_angle, fill=(0, 0, 0, 0))
-        
+
         # Draw outer arc (filled pieslice)
         draw.pieslice(outer_bbox, start_angle, end_angle, fill=ring_color)
-        
+
         # Draw inner arc (transparent pieslice) to create the ring effect
         if inner_radius > 0:
             draw.pieslice(inner_bbox, start_angle, end_angle, fill=(0, 0, 0, 0))
@@ -375,7 +375,9 @@ def main():
         for second in range(59, -1, -1):
             timestamp = format % (minute, second)
             filename = filename_fmt % (index, timestamp.replace(":", "_"))
-            arc_fraction = 1.0 - ((index + 1) / num_images)  # (first frame missing 1 arc, last frame empty)
+            arc_fraction = 1.0 - (
+                (index + 1) / num_images
+            )  # (first frame missing 1 arc, last frame empty)
             if verbose:
                 sys.stdout.write(f"Create file '{filename}' ... ")
             gen_timestamp_image(
