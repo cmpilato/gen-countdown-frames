@@ -49,6 +49,8 @@ The result of a successful invocation of the script is a collection of PNG image
     * `b`: bottom-center
     * `br`: bottom-right
 * **--shadow-color=HEX** - Drop shadow color (as an RGB or RGBA hex value, if any)
+* **--baseline-adjust=PX** - Vertical adjustment in pixels (positive values move text up, negative values move text down) [_default: 0_]
+* **--rotate** - Rotate the generated images 180 degrees
 * **-v, --verbose** - Show verbose output
 
 ## Examples
@@ -63,6 +65,10 @@ The result of a successful invocation of the script is a collection of PNG image
 640x480 images for 1 minute of countdown, using white 24pt Century Gothic, positioned in the bottom-right corner of the frame:
 
 `$ gen-countdown-frames --width 640 --height 480 --font-file GOTHIC.TTF --font-size 24 --position br 1`
+
+1280x720 images for 2 minutes of countdown, rotated 180 degrees:
+
+`$ gen-countdown-frames --rotate 2`
 
 # License
 MIT License

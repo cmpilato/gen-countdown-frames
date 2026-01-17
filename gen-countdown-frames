@@ -20,6 +20,8 @@ Options:
                         bl (bottom-left), b (bottom-centered), br (bottom-right)
    --no-zeroes       Omit leading zeroes in minutes remaining
    --shadow-color=   Drop shadow color (as an RGB or RGBA hex value, if any)
+   --baseline-adjust= Vertical adjustment in pixels (positive=up, negative=down) [0]
+   --rotate          Rotate the generated images 180 degrees
    -v, --verbose     Be noisy about what we're doing
 
 Example(s):
@@ -57,7 +59,9 @@ def gen_timestamp_image(
     shadow_offset,
     timestamp,
     position,
+    baseline_adjust,
     file_name,
+    rotate=False,
 ):
     # New image
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -103,6 +107,9 @@ def gen_timestamp_image(
     text_x = max(0, text_x)
     text_y = max(0, text_y)
 
+    # Apply baseline adjustment (positive moves up, negative moves down).
+    text_y -= baseline_adjust
+
     # Draw the shadow (if any).
     if shadow_color is not None:
         draw.text(
@@ -114,6 +121,10 @@ def gen_timestamp_image(
 
     # Draw the text.
     draw.text((text_x, text_y), timestamp, font_color, font)
+
+    # Rotate the image if requested.
+    if rotate:
+        img = img.rotate(180)
 
     # Save the file.
     img.save(file_name)
@@ -146,6 +157,8 @@ def main():
             "no-zeroes",
             "position=",
             "shadow-color=",
+            "baseline-adjust=",
+            "rotate",
             "verbose",
         ],
     )
@@ -157,7 +170,9 @@ def main():
     font_color = (255, 255, 255, 255)
     shadow_color = None
     position = "c"
+    baseline_adjust = 0
     zeroes = True
+    rotate = False
     verbose = False
 
     # Parse options.
@@ -197,6 +212,13 @@ def main():
                 shadow_color = color_hex_to_tuple(value)
             except Exception:
                 usage_and_exit("Invalid value for --shadow-color")
+        elif option in ["--baseline-adjust"]:
+            try:
+                baseline_adjust = int(value)
+            except Exception:
+                usage_and_exit("Invalid value for --baseline-adjust")
+        elif option in ["--rotate"]:
+            rotate = True
         elif option in ["-v", "--verbose"]:
             verbose = True
         else:
@@ -246,7 +268,9 @@ def main():
                 shadow_offset,
                 timestamp,
                 position,
+                baseline_adjust,
                 filename,
+                rotate,
             )
             if verbose:
                 sys.stdout.write("done.\n")
