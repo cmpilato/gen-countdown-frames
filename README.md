@@ -49,7 +49,12 @@ The result of a successful invocation of the script is a collection of PNG image
     * `b`: bottom-center
     * `br`: bottom-right
 * **--shadow-color=HEX** - Drop shadow color (as an RGB or RGBA hex value, if any)
-* **--baseline-adjust=PX** - Vertical adjustment in pixels (positive values move text up, negative values move text down) [_default: 0_]
+* **--baseline=PX** - Vertical adjustment in pixels (positive values move text up, negative values move text down) [_default: 0_]
+* **--ring-height=PX** - Outer diameter (in pixels) of disappearing ring [_default: 80% of the smaller dimension_]
+* **--ring-thickness=PX** - Thickness (in pixels) of the ring [_default: 10% of ring-height_]
+* **--ring-color=HEX** - Ring color (as an RGB or RGBA hex value) [_default: same as font-color_]
+* **--enable-ring** - Enable ring generation (in addition to numeric countdown)
+* **--disable-text** - Disable text generation (show only ring countdown)
 * **--rotate** - Rotate the generated images 180 degrees
 * **-v, --verbose** - Show verbose output
 
@@ -69,6 +74,22 @@ The result of a successful invocation of the script is a collection of PNG image
 1280x720 images for 2 minutes of countdown, rotated 180 degrees:
 
 `$ gen-countdown-frames --rotate 2`
+
+1280x720 images for 3 minutes of countdown with both numeric text and disappearing ring:
+
+`$ gen-countdown-frames --enable-ring 3`
+
+1280x720 images for 1 minute of countdown with custom ring size and color:
+
+`$ gen-countdown-frames --enable-ring --ring-height 500 --ring-thickness 40 --ring-color FF0000 1`
+
+1280x720 images for 2 minutes with only the disappearing ring (no text):
+
+`$ gen-countdown-frames --enable-ring --disable-text 2`
+
+640x480 images for 5 minutes with only numeric text (default behavior):
+
+`$ gen-countdown-frames --width 640 --height 480 5`
 
 # License
 MIT License
