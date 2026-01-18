@@ -34,7 +34,7 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        ./lint.sh
+        ./lint.sh --check-only
 
 #   - name: Test with pytest
 #     run: |

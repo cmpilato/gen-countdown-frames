@@ -1,3 +1,18 @@
+# Virtual environments
 .venv
 .virtualenv
+
+# Generated images
 *.png
+
+# Python package build artifacts
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/

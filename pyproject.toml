@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gen-countdown-frames"
+version = "1.0.0"
+description = "Generate PNG images for countdown video frames with numeric text and/or disappearing ring animations"
+readme = "README.md"
+authors = [
+    {name = "C. Michael Pilato", email = "cmpilato@red-bean.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Multimedia :: Video",
+]
+dependencies = [
+    "pillow>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+]
+
+[project.scripts]
+gen-countdown-frames = "gen_countdown_frames.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/cmpilato/gen-countdown-frames"
+Repository = "https://github.com/cmpilato/gen-countdown-frames"
+Issues = "https://github.com/cmpilato/gen-countdown-frames/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']

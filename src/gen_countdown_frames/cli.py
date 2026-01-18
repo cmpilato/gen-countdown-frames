@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Generate PNG images for each second of a countdown clock beginning just
 under a given number of minutes and counting down to 0:00.  Files will be
 created in the current working directory with names that derive from the
@@ -31,15 +30,16 @@ Options:
 
 Example(s):
    # 5-minute countdown 640x480 with centered Arial 24-point font
-   gen-countdown-images.py --width 640 --height 480 --font-size 24 5
+   gen-countdown-frames --width 640 --height 480 --font-size 24 5
 
    # 1-minute countdown 1280x720 with Century Gothic 120-point font
    # positioned in the bottom-right corner
-   gen-countdown-images.py --font-file GOTHIC.TTF --position br 1
+   gen-countdown-frames --font-file GOTHIC.TTF --position br 1
 
    # 2-minute countdown with both numeric text and disappearing ring
-   gen-countdown-images.py --enable-ring --ring-height 500 --ring-thickness 40 2
+   gen-countdown-frames --enable-ring --ring-height 500 --ring-thickness 40 2
 """
+
 import sys
 import getopt
 import os

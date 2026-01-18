@@ -1,22 +1,34 @@
 # gen-countdown-frames
-Python script for generating still image frames useful for creating a countdown video
+Python package for generating still image frames useful for creating a countdown video
+
+# Installation
+
+## From source
+```bash
+pip install -e .
+```
+
+## With development dependencies
+```bash
+pip install -e ".[dev]"
+```
+
+See [INSTALL.md](INSTALL.md) for more detailed installation and development instructions.
 
 # Requirements
 `gen-countdown-frames` requires:
 
-* Python - the script is written in this language
+* Python 3.8 or later
 * Pillow - the Python imaging library
 
-_### TODO: Determine supported/required versions of these things_
-
 # Usage
-Run `gen-countdown-frames` as you would any other Python script on your system.  The command-line looks like this:
+After installation, use the `gen-countdown-frames` command:
 
-`$ gen-countdown-frame [OPTIONS] NUM_MINUTES`
+`$ gen-countdown-frames [OPTIONS] NUM_MINUTES`
 
-The result of a successful invocation of the script is a collection of PNG image files in the current working directory whose names derive from the time displayed in the image, and which begin with an index that allows them to be easily sorted from _starting value_ to _0:00_:
+The result of a successful invocation is a collection of PNG image files in the current working directory whose names derive from the time displayed in the image, and which begin with an index that allows them to be easily sorted from _starting value_ to _0:00_:
 
-    $ gen-countdown-frame --verbose 1
+    $ gen-countdown-frames --verbose 1
     Create file '00-countdown-0_59.png' ... done.
     Create file '01-countdown-0_58.png' ... done.
     Create file '02-countdown-0_57.png' ... done.
