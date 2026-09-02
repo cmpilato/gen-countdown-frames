@@ -13,6 +13,7 @@ Options:
    --font-file=      TrueType font file to use for countdown text [arial.ttf]
    --font-size=      Font size (in pixels) of countdown text [width / 10]
    --font-color=     Text color (as an RGB or RGBA hex value) [FFFFFFFF]
+   --output=         Directory in which to create generated images [current directory]
    --position=       Location of text (with proportional padding) [c]:
                         tl (top-left), t (top-centered), tr (top-right),
                         l (middle-left), c (middle-centered), r (middle-right),
@@ -222,6 +223,7 @@ def main():
             "font-file=",
             "font-size=",
             "font-color=",
+            "output=",
             "no-zeroes",
             "position=",
             "shadow-color=",
@@ -241,6 +243,7 @@ def main():
     font_file = "arial.ttf"
     font_size = None
     font_color = (255, 255, 255, 255)
+    output_dir = "."
     shadow_color = None
     position = "c"
     baseline = 0
@@ -279,6 +282,8 @@ def main():
                 font_color = color_hex_to_tuple(value)
             except Exception:
                 usage_and_exit("Invalid value for --font-color")
+        elif option in ["--output"]:
+            output_dir = value
         elif option in ["--no-zeroes"]:
             zeroes = False
         elif option in ["--position"]:
@@ -331,6 +336,9 @@ def main():
     except Exception:
         usage_and_exit("Invalid value for number of minutes")
 
+    if not os.path.isdir(output_dir):
+        usage_and_exit(f"Output directory '{output_dir}' does not exist or is not a directory")
+
     # If any ring option was explicitly specified, enable ring mode.
     if ring_height is not None or ring_thickness is not None or ring_color is not None:
         enable_ring = True
@@ -375,6 +383,7 @@ def main():
         for second in range(59, -1, -1):
             timestamp = format % (minute, second)
             filename = filename_fmt % (index, timestamp.replace(":", "_"))
+            output_filename = os.path.join(output_dir, filename)
             arc_fraction = 1.0 - (
                 (index + 1) / num_images
             )  # (first frame missing 1 arc, last frame empty)
@@ -396,7 +405,7 @@ def main():
                 arc_fraction,
                 enable_ring,
                 disable_text,
-                filename,
+                output_filename,
                 rotate,
             )
             if verbose:
